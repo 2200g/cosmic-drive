@@ -38,4 +38,6 @@ all logics or whatever you want to call them are in the logics folder, they are 
 - [ ] add logic for splitting files larger than 20MB into main
 - [ ] add logic for downloading said split file 
 - [ ] add gpg encryption
+
+> [https://www.youtube.com/watch?v=6RJlIf97Lp8](https://www.youtube.com/watch?v=6RJlIf97Lp8) this inspired me to do this yes
 > im new to bash please do not bully me.
