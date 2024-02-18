@@ -24,7 +24,7 @@ d     download a file.
 
 - [https://telegram.me/botfather](https://telegram.me/botfather)
     use this to get a bot up and running and replace `TOKEN="TOKEN"` with `TOKEN=yourActualToken`
-- [https://api.telegram.org/botTOKEN/getUpdates}https://api.telegram.org/botTOKEN/getUpdates](https://api.telegram.org/botTOKEN/getUpdates) 
+- [https://api.telegram.org/botTOKEN/getUpdates](https://api.telegram.org/botTOKEN/getUpdates) 
     - edit this link with your token, and send a message to your bot.
     - copy your chat id and replace `chatId="CHATID"` with `chatId="your actual chat id"`
 
