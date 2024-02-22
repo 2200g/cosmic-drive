@@ -26,25 +26,46 @@ uploader () {
   file_size=$(stat -c %s "$eenput")
     if [ $file_size -gt $((20*1024*1024)) ]; then
         echo "file is bigger than 20MB, you have to split it now :(."
+        mkdir /tmp/cosmic-drive/ > /dev/null 2>&1
+        mkdir /tmp/cosmic-drive/${naamkaran}/
+        split --bytes 20M --numeric-suffixes --suffix-length=5 $eenput /tmp/cosmic-drive/${naamkaran}/out_ 
+        for i in /tmp/cosmic-drive/${naamkaran}/* ; do 
+          echo ${i}
+          fileId=$(curl -F chat_id="${chatId}" -F document="@${i}" "${apiEnd}/sendDocument" | grep -o '"file_id":"[^"]*' | tail -n 1 | awk -F'"' '{print $4}')
+          echo $naamkaran $fileId >> ${db}
+        done
+        rm -r /tmp/cosmic-drive/
     else
       echo "file is not bigger than 20MB. :)"
-      fileName=${eenput}
-    fi
+      fileId=$(curl -F chat_id="${chatId}" -F document=@"${eenput}" "${apiEnd}/sendDocument" | grep -o '"file_id":"[^"]*' | tail -n 1 | awk -F'"' '{print $4}')
+      echo $naamkaran $fileId >> ${db}
 
-  fileId=$(curl -F chat_id="${chatId}" -F document=@"${fileName}" "${apiEnd}/sendDocument" | grep -o '"file_id":"[^"]*' | tail -n 1 | awk -F'"' '{print $4}')
-  
-  echo $naamkaran $fileId >> ${db}
+    fi
 }
 
 downloader () {
  read -r -p "file key: " key
- fileId=$(grep -w ${key} ${db} | awk '{print $2}')
- echo "file id for ${key} is ${fileId} "
  
- pathFile=$(curl -s "${apiEnd}/getFile?file_id=${fileId}" | grep -o '"file_path":"[^"]*' | awk -F'"' '{print $4}')
- dlURL="https://api.telegram.org/file/bot${TOKEN}/${pathFile}"
-
- curl -o ${key} ${dlURL}
+ fileId=$(grep -w ${key} ${db} | awk '{print $2}')
+ numb=$(grep -w ${key} ${db} | wc -l)
+ if [ $numb -gt 1 ]; then 
+   echo "split detected"
+   mkdir /tmp/cosmic-drive/ > /dev/null 2>&1 
+   mkdir /tmp/cosmic-drive/${key}_download/
+   for i in ${fileId}; do 
+     echo ${i}
+     pathFile=$(curl -s "${apiEnd}/getFile?file_id=${i}" | grep -o '"file_path":"[^"]*' | awk -F'"' '{print $4}')
+     dlURL="https://api.telegram.org/file/bot${TOKEN}/${pathFile}"
+     curl -o /tmp/cosmic-drive/${key}_download/${i} ${dlURL}
+   done
+   cat /tmp/cosmic-drive/${key}_download/* > ${key}
+   rm -r /tmp/cosmic-drive/
+ else 
+   echo "file id for ${key} is ${fileId} "
+   pathFile=$(curl -s "${apiEnd}/getFile?file_id=${fileId}" | grep -o '"file_path":"[^"]*' | awk -F'"' '{print $4}')
+   dlURL="https://api.telegram.org/file/bot${TOKEN}/${pathFile}"
+   curl -o ${key} ${dlURL}
+ fi
 }
 
 while getopts ":hud" option; do
