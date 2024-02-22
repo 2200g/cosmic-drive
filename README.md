@@ -35,8 +35,8 @@ all logics or whatever you want to call them are in the logics folder, they are 
 ---
 
 ## TODO
-- [ x ] add logic for splitting files larger than 20MB into main
-- [ x ] add logic for downloading said split file 
+- [x] add logic for splitting files larger than 20MB into main
+- [x] add logic for downloading said split file 
 - [ ] add logic for file extensions
 - [ ] add gpg encryption
 
