@@ -23,8 +23,9 @@ helpme () {
 uploader () {
   read -r -p "input (absolute) file path: " eenput
   read -r -p "save as (no space): " naamkaran
-  file_size=$(stat -c %s "$eenput")
-    if [ $file_size -gt $((20*1024*1024)) ]; then
+  extn=$(basename $eenput | awk -F . '{print $NF}')
+  fileSize=$(stat -c %s "$eenput")
+    if [ $fileSize -gt $((20*1024*1024)) ]; then
         echo "file is bigger than 20MB, you have to split it now :(."
         mkdir /tmp/cosmic-drive/ > /dev/null 2>&1
         mkdir /tmp/cosmic-drive/${naamkaran}/
@@ -32,21 +33,19 @@ uploader () {
         for i in /tmp/cosmic-drive/${naamkaran}/* ; do 
           echo ${i}
           fileId=$(curl -F chat_id="${chatId}" -F document="@${i}" "${apiEnd}/sendDocument" | grep -o '"file_id":"[^"]*' | tail -n 1 | awk -F'"' '{print $4}')
-          echo $naamkaran $fileId >> ${db}
         done
         rm -r /tmp/cosmic-drive/
     else
       echo "file is not bigger than 20MB. :)"
       fileId=$(curl -F chat_id="${chatId}" -F document=@"${eenput}" "${apiEnd}/sendDocument" | grep -o '"file_id":"[^"]*' | tail -n 1 | awk -F'"' '{print $4}')
-      echo $naamkaran $fileId >> ${db}
-
-    fi
+    fi 
+    echo $naamkaran $fileId $extn >> ${db}
 }
 
 downloader () {
  read -r -p "file key: " key
- 
  fileId=$(grep -w ${key} ${db} | awk '{print $2}')
+ extn=$(grep -w ${key} ${db} | awk '{print $3}')
  numb=$(grep -w ${key} ${db} | wc -l)
  if [ $numb -gt 1 ]; then 
    echo "split detected"
@@ -58,13 +57,13 @@ downloader () {
      dlURL="https://api.telegram.org/file/bot${TOKEN}/${pathFile}"
      curl -o /tmp/cosmic-drive/${key}_download/${i} ${dlURL}
    done
-   cat /tmp/cosmic-drive/${key}_download/* > ${key}
+   cat /tmp/cosmic-drive/${key}_download/* > ${key}.${extn}
    rm -r /tmp/cosmic-drive/
  else 
    echo "file id for ${key} is ${fileId} "
    pathFile=$(curl -s "${apiEnd}/getFile?file_id=${fileId}" | grep -o '"file_path":"[^"]*' | awk -F'"' '{print $4}')
    dlURL="https://api.telegram.org/file/bot${TOKEN}/${pathFile}"
-   curl -o ${key} ${dlURL}
+   curl -o ${key}.${extn} ${dlURL}
  fi
 }
 
@@ -83,5 +82,3 @@ while getopts ":hud" option; do
       exit 1;;
 	esac
 done
-
-

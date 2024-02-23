@@ -37,10 +37,9 @@ all logics or whatever you want to call them are in the logics folder, they are 
 ## TODO
 - [x] add logic for splitting files larger than 20MB into main
 - [x] add logic for downloading said split file 
-- [ ] add logic for file extensions
+- [x] add logic for file extensions
 - [ ] add gpg encryption
 
-> adding logic for file extensions would be like a new coloumn in cosmicdrive.db
 
 > [https://www.youtube.com/watch?v=6RJlIf97Lp8](https://www.youtube.com/watch?v=6RJlIf97Lp8) this inspired me to do this yes
 > im new to bash please do not bully me.
